@@ -1,28 +1,20 @@
-name: .NET Core
+name: CI
 
 on: [push]
 
 jobs:
   build:
-
     runs-on: windows-latest
-
     steps:
-    - uses: actions/checkout@v1
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.100
-    - name: Dotnet Publish
-      run: dotnet publish --runtime win-x86 --configuration Release
-    - name: Create ZIP
-      shell: pwsh
-      run: |
-        cd .\bin\Release\netcoreapp3.1\win-x86\
-        Compress-Archive -Path . -DestinationPath RomanPort.OpenRDS.zip
-    - name: Upload to Existing Release
-      uses: Shopify/upload-to-release@1.0.0
-      with:
-        name: RomanPort.OpenRDS.zip
-        path: RomanPort.OpenRDS.zip
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: checkout
+        uses: actions/checkout@v1
+      - name: Build
+        run: |
+           cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
+           .\MSBuild.exe $Env:GITHUB_WORKSPACE\ /p:Configuration=Release 
+           tree
+           
+      - uses: actions/upload-artifact@v1
+        with:
+          name: artifact
+          path: ./RomanPort.OpenRDS/bin/Release
